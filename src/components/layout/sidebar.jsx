@@ -14,9 +14,10 @@ import {
   Receipt,
   Bell,
   BarChart3,
-  Zap,
   Moon,
   Sun,
+  Menu,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "@/lib/constants";
@@ -33,19 +34,43 @@ const iconMap = {
   BarChart3,
 };
 
-export function Sidebar() {
+export function Sidebar({ open = false, onClose }) {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r bg-card">
-      <div className="flex h-16 items-center gap-2 border-b px-6">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-          <Zap className="h-5 w-5 text-primary-foreground" />
+    <>
+      {open && (
+        <button
+          type="button"
+          aria-label="Close navigation menu"
+          onClick={onClose}
+          className="fixed inset-0 z-30 bg-black/30 md:hidden"
+        />
+      )}
+      <aside
+        className={cn(
+          "fixed left-0 top-0 z-40 h-screen w-64 border-r bg-card shadow-xl transition-transform duration-200 md:translate-x-0 md:shadow-none",
+          open ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+      <div className="flex h-16 items-center justify-between gap-1.5 border-b px-3 sm:px-4">
+        <div className="flex items-center gap-1.5">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary">
+            <img src="/image.png" alt="Gada Electronics" className="h-full w-full object-cover" />
+          </div>
+          <div className="min-w-0">
+            <h4 className="text-xl font-bold leading-tight">Gada Electronics</h4>
+            <p className="text-[14px] leading-tight text-muted-foreground">Inventory Manager</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-lg font-bold">Gada Electronics</h1>
-          <p className="text-xs text-muted-foreground">Inventory Manager</p>
-        </div>
+        <button
+          type="button"
+          aria-label="Close menu"
+          onClick={onClose}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-accent md:hidden"
+        >
+          <X className="h-4 w-4" />
+        </button>
       </div>
 
       <nav className="space-y-1 p-4">
@@ -72,11 +97,12 @@ export function Sidebar() {
           );
         })}
       </nav>
-    </aside>
+      </aside>
+    </>
   );
 }
 
-export function Header({ title, description }) {
+export function Header({ title, description, onMenuClick }) {
   const [darkMode, setDarkMode] = useState(true);
 
   useEffect(() => {
@@ -96,12 +122,24 @@ export function Header({ title, description }) {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background/95 px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div>
-        <h2 className="text-xl font-semibold">{title}</h2>
-        {description && (
-          <p className="text-sm text-muted-foreground">{description}</p>
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background/95 px-4 sm:px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex items-center gap-3">
+        {onMenuClick && (
+          <button
+            type="button"
+            aria-label="Open navigation menu"
+            onClick={onMenuClick}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background text-foreground shadow-sm transition hover:bg-accent md:hidden"
+          >
+            <Menu className="h-4 w-4" />
+          </button>
         )}
+        <div>
+          <h2 className="text-xl font-semibold">{title}</h2>
+          {description && (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          )}
+        </div>
       </div>
       <div className="flex items-center gap-3">
         <button
@@ -144,14 +182,14 @@ export function Header({ title, description }) {
 
 export function PageHeader({ title, description, action }) {
   return (
-    <div className="mb-6 flex items-center justify-between">
+    <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div>
         <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
         {description && (
           <p className="text-muted-foreground">{description}</p>
         )}
       </div>
-      {action}
+      <div className="w-full md:w-auto">{action}</div>
     </div>
   );
 }

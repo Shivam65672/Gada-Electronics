@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ExternalLink } from "lucide-react";
 import { PageHeader } from "@/components/layout/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -121,9 +121,22 @@ export default function SalesPage() {
         title="Sales"
         description="Record sales and track revenue"
         action={
-          <Button onClick={() => setDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" /> New Sale
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() =>
+                window.open("https://billing-go.vercel.app/", "_blank", "noopener,noreferrer")
+              }
+            >
+              <ExternalLink className="mr-0 h-4 w-4" />
+              Want Bill?
+            </Button>
+
+            <Button onClick={() => setDialogOpen(true)}>
+              <Plus className="mr-0 h-4 w-4" />
+              New Sale
+            </Button>
+          </div>
         }
       />
 

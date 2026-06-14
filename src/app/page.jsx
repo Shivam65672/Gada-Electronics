@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
-import { Package, ShoppingCart, Bell, BarChart3, Zap, Moon, Sun } from "lucide-react";
+import { Package, ShoppingCart, Bell, BarChart3, Moon, Sun } from "lucide-react";
 
 export default function HomePage() {
   const [darkMode, setDarkMode] = useState(true);
@@ -34,10 +34,10 @@ export default function HomePage() {
         className={`border-b backdrop-blur ${darkMode ? "border-slate-800 bg-slate-950/80" : "border-slate-200 bg-white/80"
           }`}
       >
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+        <div className="container mx-auto flex h-16 flex-wrap items-center justify-between gap-3 px-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-              <Zap className="h-5 w-5 text-primary-foreground" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary overflow-hidden">
+              <img src="/image.png" alt="Gada Electronics" className="h-full w-full object-cover" />
             </div>
             <span className="text-xl font-bold">Gada Electronics</span>
           </div>
@@ -86,7 +86,7 @@ export default function HomePage() {
       <main className="container mx-auto px-4 py-20">
         <div className="mx-auto max-w-3xl text-center">
           <h1
-            className={`text-5xl font-bold tracking-tight ${darkMode ? "text-slate-100" : "text-slate-900"
+            className={`text-4xl font-bold tracking-tight sm:text-5xl ${darkMode ? "text-slate-100" : "text-slate-900"
               }`}
           >
             Inventory Management
@@ -97,7 +97,7 @@ export default function HomePage() {
             manage stock, process sales, and get real-time analytics — all in one
             place.
           </p>
-          <div className="mt-10 flex justify-center gap-4">
+          <div className="mt-10 flex flex-wrap justify-center gap-4">
             <SignedOut>
               <Link href="/sign-up">
                 <Button
