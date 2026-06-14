@@ -26,34 +26,35 @@ export default function HomePage() {
   return (
     <div
       className={`min-h-screen ${darkMode
-          ? "bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100"
-          : "bg-gradient-to-br from-slate-100 via-white to-slate-100 text-slate-900"
+        ? "bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100"
+        : "bg-gradient-to-br from-slate-100 via-white to-slate-100 text-slate-900"
         }`}
     >
       <header
         className={`border-b backdrop-blur ${darkMode ? "border-slate-800 bg-slate-950/80" : "border-slate-200 bg-white/80"
           }`}
       >
-        <div className="container mx-auto flex h-16 flex-wrap items-center justify-between gap-3 px-4">
-          <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary overflow-hidden">
+        <div className="container mx-auto flex flex-nowrap items-center justify-between gap-2 px-3 py-3 sm:h-16 sm:px-4 sm:gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary">
               <img src="/image.png" alt="Gada Electronics" className="h-full w-full object-cover" />
             </div>
-            <span className="text-xl font-bold">Gada Electronics</span>
+            <span className="truncate text-base font-bold sm:text-xl">Gada Electronics</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={toggleTheme}
               aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
               className={`inline-flex h-10 w-10 items-center justify-center rounded-full border shadow-sm transition ${darkMode
-                  ? "border-slate-700 bg-slate-900 text-slate-100 hover:bg-slate-800"
-                  : "border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
+                ? "border-slate-700 bg-slate-900 text-slate-100 hover:bg-slate-800"
+                : "border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
                 }`}
             >
               {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
             <SignedOut>
+              <div className="hidden sm:flex sm:items-center sm:gap-3">
               <Link href="/sign-in">
                 <Button
                   variant="ghost"
@@ -69,16 +70,21 @@ export default function HomePage() {
                   Get Started
                 </Button>
               </Link>
+              </div>
             </SignedOut>
             <SignedIn>
-              <Link href="/dashboard">
-                <Button
-                  className={darkMode ? "bg-sky-500 text-slate-950 hover:bg-sky-400" : "bg-primary text-primary-foreground hover:bg-primary/90"}
-                >
-                  Go to Dashboard
-                </Button>
-              </Link>
-            </SignedIn>
+  <Link href="/dashboard" className="hidden sm:block">
+    <Button
+      className={
+        darkMode
+          ? "bg-sky-500 text-slate-950 hover:bg-sky-400"
+          : "bg-primary text-primary-foreground hover:bg-primary/90"
+      }
+    >
+      Go to Dashboard
+    </Button>
+  </Link>
+</SignedIn>
           </div>
         </div>
       </header>
@@ -156,8 +162,8 @@ export default function HomePage() {
             <div
               key={feature.title}
               className={`items-center text-center rounded-xl border p-6 shadow-sm transition-shadow hover:shadow-md ${darkMode
-                  ? "border-slate-800 bg-slate-900/90"
-                  : "border-slate-200 bg-white"
+                ? "border-slate-800 bg-slate-900/90"
+                : "border-slate-200 bg-white"
                 }`}
             >
               <div className="mb-4 mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">

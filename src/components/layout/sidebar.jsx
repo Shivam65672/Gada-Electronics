@@ -53,50 +53,55 @@ export function Sidebar({ open = false, onClose }) {
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
-      <div className="flex h-16 items-center justify-between gap-1.5 border-b px-3 sm:px-4">
-        <div className="flex items-center gap-1.5">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary">
-            <img src="/image.png" alt="Gada Electronics" className="h-full w-full object-cover" />
+        <div className="flex h-16 items-center justify-between gap-1.5 border-b px-3 sm:px-4">
+          <div className="flex items-center gap-1.5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary">
+              <img src="/image.png" alt="Gada Electronics" className="h-full w-full object-cover" />
+            </div>
+            <div className="min-w-0">
+              <h4 className="text-base sm:text-xl font-bold leading-tight">
+                Gada Electronics
+              </h4>
+
+              <p className="text-[11px] sm:text-[14px] leading-tight text-muted-foreground">
+                Inventory Manager
+              </p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <h4 className="text-xl font-bold leading-tight">Gada Electronics</h4>
-            <p className="text-[14px] leading-tight text-muted-foreground">Inventory Manager</p>
-          </div>
+          <button
+            type="button"
+            aria-label="Close menu"
+            onClick={onClose}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-accent md:hidden"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
-        <button
-          type="button"
-          aria-label="Close menu"
-          onClick={onClose}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-accent md:hidden"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
 
-      <nav className="space-y-1 p-4">
-        {NAV_ITEMS.map((item) => {
-          const Icon = iconMap[item.icon];
-          const isActive =
-            pathname === item.href ||
-            (item.href !== "/dashboard" && pathname.startsWith(item.href));
+        <nav className="space-y-1 p-4">
+          {NAV_ITEMS.map((item) => {
+            const Icon = iconMap[item.icon];
+            const isActive =
+              pathname === item.href ||
+              (item.href !== "/dashboard" && pathname.startsWith(item.href));
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-              )}
-            >
-              <Icon className="h-4 w-4" />
-              {item.title}
-            </Link>
-          );
-        })}
-      </nav>
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                  isActive
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                {item.title}
+              </Link>
+            );
+          })}
+        </nav>
       </aside>
     </>
   );
