@@ -4,17 +4,22 @@ import { getStockSummary } from "@/lib/inventory-service";
 import { LowStockAlert } from "@/models/LowStockAlert";
 import { Sale } from "@/models/Sale";
 import { PurchaseOrder } from "@/models/PurchaseOrder";
+import { requireAuth } from "@/lib/auth";
 
 export async function GET() {
   try {
     await connectDB();
+    const userId = await requireAuth();
 
     const [stockSummary, unreadAlerts, recentSales, pendingOrders] =
       await Promise.all([
-        getStockSummary(),
-        LowStockAlert.countDocuments({ isResolved: false, isRead: false }),
-        Sale.find().sort({ saleDate: -1 }).limit(5),
-        PurchaseOrder.find({ status: { $in: ["pending", "ordered"] } })
+        getStockSummary(userId),
+        LowStockAlert.countDocuments({ userId, isResolved: false, isRead: false }),
+        Sale.find({ userId }).sort({ saleDate: -1 }).limit(5),
+        PurchaseOrder.find({ 
+          userId,
+          status: { $in: ["pending", "ordered"] } 
+        })
           .populate("supplier", "name")
           .limit(5),
       ]);
@@ -23,7 +28,7 @@ export async function GET() {
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
     const monthlyRevenue = await Sale.aggregate([
-      { $match: { saleDate: { $gte: startOfMonth } } },
+      { $match: { userId, saleDate: { $gte: startOfMonth } } },
       { $group: { _id: null, total: { $sum: "$total" } } },
     ]);
 
@@ -35,6 +40,9 @@ export async function GET() {
       pendingOrders,
     });
   } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return apiError("Unauthorized", 401);
+    }
     return handleApiError(error);
   }
 }

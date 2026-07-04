@@ -1,14 +1,16 @@
 import { connectDB } from "@/lib/mongodb";
 import { apiSuccess, handleApiError } from "@/lib/api-utils";
 import { LowStockAlert } from "@/models/LowStockAlert";
+import { requireAuth } from "@/lib/auth";
 
 export async function GET(request) {
   try {
     await connectDB();
+    const userId = await requireAuth();
     const { searchParams } = new URL(request.url);
     const resolved = searchParams.get("resolved");
 
-    const filter = {};
+    const filter = { userId };
     if (resolved === "false") {
       filter.isResolved = false;
     } else if (resolved === "true") {
@@ -20,12 +22,16 @@ export async function GET(request) {
       .sort({ createdAt: -1 });
 
     const unreadCount = await LowStockAlert.countDocuments({
+      userId,
       isResolved: false,
       isRead: false,
     });
 
     return apiSuccess({ alerts, unreadCount });
   } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return apiError("Unauthorized", 401);
+    }
     return handleApiError(error);
   }
 }
@@ -33,6 +39,7 @@ export async function GET(request) {
 export async function PATCH(request) {
   try {
     await connectDB();
+    const userId = await requireAuth();
     const body = await request.json();
     const { alertIds, action } = body;
 
@@ -47,10 +54,16 @@ export async function PATCH(request) {
       update.isRead = true;
     }
 
-    await LowStockAlert.updateMany({ _id: { $in: alertIds } }, update);
+    await LowStockAlert.updateMany({ 
+      _id: { $in: alertIds },
+      userId 
+    }, update);
 
     return apiSuccess({ message: "Alerts updated" });
   } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return apiError("Unauthorized", 401);
+    }
     return handleApiError(error);
   }
 }

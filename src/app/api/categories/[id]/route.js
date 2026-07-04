@@ -2,6 +2,7 @@ import { connectDB } from "@/lib/mongodb";
 import { apiSuccess, apiError, handleApiError } from "@/lib/api-utils";
 import { Category } from "@/models/Category";
 import { categorySchema } from "@/lib/validations";
+import { requireAuth } from "@/lib/auth";
 
 function slugify(text) {
   return text
@@ -14,11 +15,15 @@ function slugify(text) {
 export async function GET(_request, { params }) {
   try {
     await connectDB();
+    const userId = await requireAuth();
     const { id } = await params;
-    const category = await Category.findById(id);
+    const category = await Category.findOne({ _id: id, userId });
     if (!category) return apiError("Category not found", 404);
     return apiSuccess(category);
   } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return apiError("Unauthorized", 401);
+    }
     return handleApiError(error);
   }
 }
@@ -26,6 +31,7 @@ export async function GET(_request, { params }) {
 export async function PUT(request, { params }) {
   try {
     await connectDB();
+    const userId = await requireAuth();
     const { id } = await params;
     const body = await request.json();
     const parsed = categorySchema.safeParse(body);
@@ -35,8 +41,8 @@ export async function PUT(request, { params }) {
     }
 
     const { name, description, isActive } = parsed.data;
-    const category = await Category.findByIdAndUpdate(
-      id,
+    const category = await Category.findOneAndUpdate(
+      { _id: id, userId },
       { name, slug: slugify(name), description, isActive },
       { new: true, runValidators: true }
     );
@@ -44,6 +50,9 @@ export async function PUT(request, { params }) {
     if (!category) return apiError("Category not found", 404);
     return apiSuccess(category);
   } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return apiError("Unauthorized", 401);
+    }
     return handleApiError(error);
   }
 }
@@ -51,11 +60,15 @@ export async function PUT(request, { params }) {
 export async function DELETE(_request, { params }) {
   try {
     await connectDB();
+    const userId = await requireAuth();
     const { id } = await params;
-    const category = await Category.findByIdAndDelete(id);
+    const category = await Category.findOneAndDelete({ _id: id, userId });
     if (!category) return apiError("Category not found", 404);
     return apiSuccess({ message: "Category deleted" });
   } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return apiError("Unauthorized", 401);
+    }
     return handleApiError(error);
   }
 }

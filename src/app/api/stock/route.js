@@ -8,12 +8,13 @@ import { requireAuth } from "@/lib/auth";
 export async function GET(request) {
   try {
     await connectDB();
+    const userId = await requireAuth();
     const { searchParams } = new URL(request.url);
     const productId = searchParams.get("productId");
     const type = searchParams.get("type");
     const limit = parseInt(searchParams.get("limit") || "50", 10);
 
-    const filter = {};
+    const filter = { userId };
     if (productId) filter.product = productId;
     if (type) filter.type = type;
 
@@ -24,6 +25,9 @@ export async function GET(request) {
 
     return apiSuccess(movements);
   } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return apiError("Unauthorized", 401);
+    }
     return handleApiError(error);
   }
 }

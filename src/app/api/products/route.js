@@ -4,16 +4,18 @@ import { Product } from "@/models/Product";
 import { productSchema } from "@/lib/validations";
 import { DEFAULT_LOW_STOCK_THRESHOLD } from "@/lib/constants";
 import { updateProductStock } from "@/lib/inventory-service";
+import { requireAuth } from "@/lib/auth";
 
 export async function GET(request) {
   try {
     await connectDB();
+    const userId = await requireAuth();
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search");
     const category = searchParams.get("category");
     const lowStock = searchParams.get("lowStock");
 
-    const filter = {};
+    const filter = { userId };
 
     if (search) {
       filter.$or = [
@@ -38,6 +40,9 @@ export async function GET(request) {
 
     return apiSuccess(products);
   } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return apiError("Unauthorized", 401);
+    }
     return handleApiError(error);
   }
 }
@@ -45,6 +50,7 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     await connectDB();
+    const userId = await requireAuth();
     const body = await request.json();
     const parsed = productSchema.safeParse(body);
 
@@ -52,7 +58,10 @@ export async function POST(request) {
       return apiError(parsed.error.errors[0].message);
     }
 
-    const existing = await Product.findOne({ sku: parsed.data.sku.toUpperCase() });
+    const existing = await Product.findOne({ 
+      sku: parsed.data.sku.toUpperCase(),
+      userId 
+    });
     if (existing) {
       return apiError("Product with this SKU already exists");
     }
@@ -61,6 +70,7 @@ export async function POST(request) {
 
     const product = await Product.create({
       ...productData,
+      userId,
       sku: productData.sku.toUpperCase(),
       quantity: 0,
       lowStockThreshold:
@@ -82,6 +92,9 @@ export async function POST(request) {
 
     return apiSuccess(populated, 201);
   } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return apiError("Unauthorized", 401);
+    }
     return handleApiError(error);
   }
 }

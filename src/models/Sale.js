@@ -11,6 +11,7 @@ const SaleItemSchema = new mongoose.Schema({
 
 const SaleSchema = new mongoose.Schema(
   {
+    userId: { type: String, required: true, index: true },
     saleNumber: { type: String, required: true, unique: true },
     items: [SaleItemSchema],
     subtotal: { type: Number, required: true, min: 0 },

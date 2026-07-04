@@ -10,12 +10,13 @@ import { requireAuth } from "@/lib/auth";
 export async function GET(request) {
   try {
     await connectDB();
+    const userId = await requireAuth();
     const { searchParams } = new URL(request.url);
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
     const limit = parseInt(searchParams.get("limit") || "50", 10);
 
-    const filter = {};
+    const filter = { userId };
     if (startDate || endDate) {
       filter.saleDate = {};
       if (startDate) {
@@ -33,6 +34,9 @@ export async function GET(request) {
 
     return apiSuccess(sales);
   } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return apiError("Unauthorized", 401);
+    }
     return handleApiError(error);
   }
 }
@@ -91,6 +95,7 @@ export async function POST(request) {
     const total = subtotal - discount + tax;
 
     const sale = await Sale.create({
+      userId,
       saleNumber: generateOrderNumber("SALE"),
       items: saleItems,
       subtotal,

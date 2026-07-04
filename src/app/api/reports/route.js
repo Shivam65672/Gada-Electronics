@@ -5,12 +5,14 @@ import { Sale } from "@/models/Sale";
 import { PurchaseOrder } from "@/models/PurchaseOrder";
 import { StockMovement } from "@/models/StockMovement";
 import { getStockSummary } from "@/lib/inventory-service";
+import { requireAuth } from "@/lib/auth";
 
 export async function GET() {
   try {
     await connectDB();
+    const userId = await requireAuth();
 
-    const stockSummary = await getStockSummary();
+    const stockSummary = await getStockSummary(userId);
 
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -20,7 +22,7 @@ export async function GET() {
     const [monthlySales, lastMonthSales, recentSales, recentMovements] =
       await Promise.all([
         Sale.aggregate([
-          { $match: { saleDate: { $gte: startOfMonth } } },
+          { $match: { userId, saleDate: { $gte: startOfMonth } } },
           {
             $group: {
               _id: null,
@@ -33,6 +35,7 @@ export async function GET() {
         Sale.aggregate([
           {
             $match: {
+              userId,
               saleDate: { $gte: startOfLastMonth, $lte: endOfLastMonth },
             },
           },
@@ -44,15 +47,15 @@ export async function GET() {
             },
           },
         ]),
-        Sale.find().sort({ saleDate: -1 }).limit(5),
-        StockMovement.find()
+        Sale.find({ userId }).sort({ saleDate: -1 }).limit(5),
+        StockMovement.find({ userId })
           .populate("product", "name sku")
           .sort({ createdAt: -1 })
           .limit(10),
       ]);
 
     const salesByDay = await Sale.aggregate([
-      { $match: { saleDate: { $gte: startOfMonth } } },
+      { $match: { userId, saleDate: { $gte: startOfMonth } } },
       {
         $group: {
           _id: { $dateToString: { format: "%Y-%m-%d", date: "$saleDate" } },
@@ -64,7 +67,7 @@ export async function GET() {
     ]);
 
     const topProducts = await Sale.aggregate([
-      { $match: { saleDate: { $gte: startOfMonth } } },
+      { $match: { userId, saleDate: { $gte: startOfMonth } } },
       { $unwind: "$items" },
       {
         $group: {
@@ -79,7 +82,7 @@ export async function GET() {
     ]);
 
     const categoryBreakdown = await Product.aggregate([
-      { $match: { isActive: true } },
+      { $match: { userId, isActive: true } },
       {
         $lookup: {
           from: "categories",
@@ -101,10 +104,12 @@ export async function GET() {
     ]);
 
     const pendingOrders = await PurchaseOrder.countDocuments({
+      userId,
       status: { $in: ["pending", "ordered"] },
     });
 
     const lowStockProducts = await Product.find({
+      userId,
       isActive: true,
       $expr: { $lte: ["$quantity", "$lowStockThreshold"] },
     })
@@ -128,6 +133,9 @@ export async function GET() {
       recentMovements,
     });
   } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return apiError("Unauthorized", 401);
+    }
     return handleApiError(error);
   }
 }

@@ -9,10 +9,11 @@ import { requireAuth } from "@/lib/auth";
 export async function GET(request) {
   try {
     await connectDB();
+    const userId = await requireAuth();
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
 
-    const filter = {};
+    const filter = { userId };
     if (status) filter.status = status;
 
     const orders = await PurchaseOrder.find(filter)
@@ -21,6 +22,9 @@ export async function GET(request) {
 
     return apiSuccess(orders);
   } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return apiError("Unauthorized", 401);
+    }
     return handleApiError(error);
   }
 }
@@ -65,6 +69,7 @@ export async function POST(request) {
     const total = subtotal + tax;
 
     const order = await PurchaseOrder.create({
+      userId,
       orderNumber: generateOrderNumber("PO"),
       supplier,
       items: orderItems,

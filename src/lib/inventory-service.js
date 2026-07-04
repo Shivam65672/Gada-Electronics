@@ -56,6 +56,7 @@ export async function updateProductStock(params) {
       : quantity;
 
   await StockMovement.create({
+    userId: product.userId,
     product: product._id,
     type,
     quantity: movementQuantity,
@@ -78,6 +79,7 @@ async function checkLowStockAlert(product) {
 
   if (product.quantity <= threshold) {
     const existingAlert = await LowStockAlert.findOne({
+      userId: product.userId,
       product: product._id,
       isResolved: false,
     });
@@ -89,6 +91,7 @@ async function checkLowStockAlert(product) {
       await existingAlert.save();
     } else {
       await LowStockAlert.create({
+        userId: product.userId,
         product: product._id,
         productName: product.name,
         sku: product.sku,
@@ -98,14 +101,14 @@ async function checkLowStockAlert(product) {
     }
   } else {
     await LowStockAlert.updateMany(
-      { product: product._id, isResolved: false },
+      { userId: product.userId, product: product._id, isResolved: false },
       { isResolved: true }
     );
   }
 }
 
-export async function getStockSummary() {
-  const products = await Product.find({ isActive: true });
+export async function getStockSummary(userId) {
+  const products = await Product.find({ userId, isActive: true });
   const totalProducts = products.length;
   const totalQuantity = products.reduce((sum, p) => sum + p.quantity, 0);
   const totalValue = products.reduce(

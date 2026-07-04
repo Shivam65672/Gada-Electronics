@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const SupplierSchema = new mongoose.Schema(
   {
+    userId: { type: String, required: true, index: true },
     name: { type: String, required: true, trim: true },
     contactPerson: { type: String, trim: true },
     email: { type: String, trim: true, lowercase: true },

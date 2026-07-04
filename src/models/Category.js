@@ -2,9 +2,10 @@ import mongoose from "mongoose";
 
 const CategorySchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, unique: true, trim: true },
+    userId: { type: String, required: true, index: true },
+    name: { type: String, required: true, trim: true },
     description: { type: String, trim: true },
-    slug: { type: String, required: true, unique: true, lowercase: true },
+    slug: { type: String, required: true, lowercase: true },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
