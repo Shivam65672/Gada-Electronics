@@ -338,3 +338,10 @@ Gada Electronics - Inventory Management System
 - Authentication by [Clerk](https://clerk.com)
 - Icons by [Lucide](https://lucide.dev)
 - Charts by [Recharts](https://recharts.org)
+
+## 🚀 Intern Details
+
+### Candidate Name: Shivam Mishra
+### Selected For: Software Development
+### Organization: Codtech IT Solutions Private Limited
+### Intern ID: CITS4141
